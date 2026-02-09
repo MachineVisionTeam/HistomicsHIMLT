@@ -1,0 +1,38 @@
+[Unit]
+Description=Histomics ML Worker (Model Server)
+After=network.target mysql.service redis.service
+Wants=mysql.service redis.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/histomics-prod/ml
+
+# Environment
+Environment="PATH=/opt/histomics-prod/venv/bin"
+EnvironmentFile=/opt/histomics-prod/config/.env.prod
+
+# Start ML worker
+ExecStart=/opt/histomics-prod/venv/bin/python run_model_server.py
+
+# Logging
+StandardOutput=append:/opt/histomics-prod/logs/ml/model_server.log
+StandardError=append:/opt/histomics-prod/logs/ml/error.log
+
+# Restart behavior
+Restart=on-failure
+RestartSec=5s
+
+# Security hardening
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/histomics-prod/logs /data
+
+# Resource limits
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

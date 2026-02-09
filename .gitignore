@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+
+# Virtual Environments
+venv/
+venv_*/
+env/
+ENV/
+.venv
+
+# Environment Variables (Never commit env details)
+.env
+.env.*
+config/.env.prod
+config/.env.production
+*.env
+
+# Data Files (Too large for GitHub)
+*.h5
+*.hdf5
+data/
+*.svs
+*.tif
+*.tiff
+images/
+*.ndpi
+*.vms
+
+# Model Files
+*.pkl
+*.pickle
+checkpoints/
+ml/checkpoints/
+models/
+
+# Logs
+*.log
+logs/
+*.log.*
+ml/logs/
+app/logs/
+
+# Database
+*.db
+*.sqlite
+*.sql
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
+
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Frontend - Development files (Don't commit)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Frontend - source code for teammembers
+# frontend/src/         -This will be committed
+# frontend/public/      -This will be committed
+# frontend/package.json -This will be committed
+
+# Backend - Pre-built frontend (for deployment) 
+# app/static/          - This will be committed (pre-built)
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+# Ansible
+*.retry
+.ansible/
