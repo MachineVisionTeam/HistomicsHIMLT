@@ -1,0 +1,31 @@
+[Unit]
+Description=New Histomics Flask API Server
+After=network.target mysql.service redis.service
+Wants=mysql.service redis.service
+
+[Service]
+Type=simple
+User={{ actual_app_user }}
+Group={{ actual_app_group }}
+WorkingDirectory={{ app_install_dir }}/app
+Environment="PATH={{ venv_dir }}/bin"
+EnvironmentFile={{ app_install_dir }}/.env
+
+ExecStart={{ venv_dir }}/bin/gunicorn \
+    --workers {{ gunicorn_workers }} \
+    --bind {{ gunicorn_bind }} \
+    --timeout {{ gunicorn_timeout }} \
+    --access-logfile {{ app_install_dir }}/logs/flask_access.log \
+    --error-logfile {{ app_install_dir }}/logs/flask_error.log \
+    --log-level info \
+    app:app
+
+Restart=always
+RestartSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

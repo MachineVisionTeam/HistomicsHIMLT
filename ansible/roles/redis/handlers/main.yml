@@ -1,0 +1,13 @@
+---
+# Redis handlers
+
+- name: restart redis
+  systemd:
+    name: "{{ 'redis-server' if is_ubuntu else 'redis' }}"
+    state: restarted
+  when: not is_macos
+
+- name: restart redis macos
+  shell: brew services restart redis
+  when: is_macos
+  become: no

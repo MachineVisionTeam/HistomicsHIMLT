@@ -1,0 +1,27 @@
+[Unit]
+Description=New Histomics ML Worker
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User={{ actual_app_user }}
+Group={{ actual_app_group }}
+WorkingDirectory={{ app_install_dir }}/ml
+Environment="PATH={{ venv_dir }}/bin"
+EnvironmentFile={{ app_install_dir }}/.env
+
+ExecStart={{ venv_dir }}/bin/python run_model_server.py
+
+StandardOutput=append:{{ app_install_dir }}/logs/ml_worker.log
+StandardError=append:{{ app_install_dir }}/logs/ml_worker_error.log
+
+Restart=always
+RestartSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

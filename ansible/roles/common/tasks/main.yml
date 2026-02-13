@@ -1,0 +1,29 @@
+---
+- name: Create application directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  loop:
+    - "{{ app_install_dir }}"
+    - "{{ app_install_dir }}/app"
+    - "{{ app_install_dir }}/ml"
+    - "{{ checkpoints_dir }}"
+    - "{{ logs_dir }}"
+    - "{{ logs_dir }}/flask"
+    - "{{ logs_dir }}/ml"
+    - "{{ app_install_dir }}/config"
+    - "{{ h5_scripts_dir }}"
+  tags: setup
+
+- name: Create data directory (external)
+  file:
+    path: "{{ data_dir }}"
+    state: directory
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: setup
+

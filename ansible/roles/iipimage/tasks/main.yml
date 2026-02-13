@@ -1,0 +1,108 @@
+---
+# IIPImage role - Install and configure IIPImage server for whole slide images
+
+- name: Install IIPImage and dependencies (Ubuntu/Debian)
+  apt:
+    name:
+      - iipimage-server
+      - libapache2-mod-fcgid
+      - libvips-tools
+      - libvips-dev
+    state: present
+  when: is_ubuntu and install_iipimage
+  tags: iipimage
+
+- name: Install IIPImage dependencies (CentOS/RHEL)
+  dnf:
+    name:
+      - mod_fcgid
+      - vips-tools
+      - vips-devel
+    state: present
+  when: is_centos and install_iipimage
+  tags: iipimage
+
+- name: Download and compile IIPImage (CentOS - manual install)
+  block:
+    - name: Download IIPImage source
+      get_url:
+        url: https://github.com/ruven/iipsrv/archive/refs/tags/1.1.tar.gz
+        dest: /tmp/iipsrv-1.1.tar.gz
+    
+    - name: Extract IIPImage source
+      unarchive:
+        src: /tmp/iipsrv-1.1.tar.gz
+        dest: /tmp/
+        remote_src: yes
+    
+    - name: Compile IIPImage
+      shell: |
+        cd /tmp/iipsrv-1.1
+        ./autogen.sh
+        ./configure
+        make
+        make install
+      args:
+        creates: /usr/local/bin/iipsrv.fcgi
+  when: is_centos and install_iipimage
+  tags: iipimage
+
+- name: Install libvips (macOS)
+  homebrew:
+    name: vips
+    state: present
+  when: is_macos and install_vips
+  become: no
+  tags: iipimage
+
+- name: Enable Apache fcgid module (Ubuntu)
+  apache2_module:
+    name: fcgid
+    state: present
+  when: is_ubuntu
+  notify: restart apache
+  tags: iipimage
+
+- name: Enable Apache fcgid module (CentOS)
+  shell: echo "LoadModule fcgid_module modules/mod_fcgid.so" > /etc/httpd/conf.modules.d/10-fcgid.conf
+  args:
+    creates: /etc/httpd/conf.modules.d/10-fcgid.conf
+  when: is_centos
+  notify: restart apache
+  tags: iipimage
+
+- name: Create IIPImage configuration
+  template:
+    src: iipimage.conf.j2
+    dest: "{{ apache_config_dir }}/iipimage.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart apache
+  tags: iipimage
+
+- name: Enable IIPImage site (Ubuntu)
+  command: a2ensite iipimage
+  args:
+    creates: /etc/apache2/sites-enabled/iipimage.conf
+  when: is_ubuntu
+  notify: restart apache
+  tags: iipimage
+
+- name: Create IIPImage images directory
+  file:
+    path: "{{ iipimage_images_dir }}"
+    state: directory
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: iipimage
+
+- name: Display IIPImage setup status
+  debug:
+    msg: |
+      IIPImage server configured:
+      - Images directory: {{ iipimage_images_dir }}
+      - Tile size: {{ iipimage_tile_size }}
+      - Endpoint: http://{{ apache_server_name }}/iipsrv/iipsrv.fcgi
+  tags: iipimage

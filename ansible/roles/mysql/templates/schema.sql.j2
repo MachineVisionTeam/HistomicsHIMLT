@@ -1,0 +1,44 @@
+-- HIMLT Histomics Database Schema
+CREATE DATABASE IF NOT EXISTS {{ db_name }};
+
+USE {{ db_name }};
+
+-- datasets table
+CREATE TABLE IF NOT EXISTS datasets (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80) NOT NULL UNIQUE,
+    features_file VARCHAR(1024) NOT NULL,
+    pca_file VARCHAR(1024) NOT NULL,
+    superpixel_size INT
+);
+
+-- slides table
+CREATE TABLE IF NOT EXISTS slides (
+    name VARCHAR(80) NOT NULL UNIQUE,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    patient VARCHAR(80),
+    x_size INT NOT NULL,
+    y_size INT NOT NULL,
+    pyramid_path VARCHAR(1024),
+    scale INT
+);
+
+-- dataset_slides junction table
+CREATE TABLE IF NOT EXISTS dataset_slides (
+    slide_id INT NOT NULL,
+    dataset_id INT NOT NULL
+);
+
+-- nuclei_boundary table
+CREATE TABLE IF NOT EXISTS nuclei_boundary (
+    slide VARCHAR(200),
+    nucleus_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    x DECIMAL(10,1),
+    y DECIMAL(10,1),
+    bbox_x0 INT,
+    bbox_y0 INT,
+    bbox_x1 INT,
+    bbox_y1 INT
+);
+
+SELECT 'Database schema created successfully' AS status;

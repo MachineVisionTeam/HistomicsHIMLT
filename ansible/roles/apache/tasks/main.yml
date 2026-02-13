@@ -1,0 +1,139 @@
+---
+# Apache role - Install and configure Apache web server
+
+- name: Install Apache (Ubuntu/Debian)
+  apt:
+    name:
+      - apache2
+      - libapache2-mod-proxy-html
+      - libxml2-dev
+    state: present
+  when: is_ubuntu
+  tags: apache
+
+- name: Install Apache (CentOS/RHEL)
+  dnf:
+    name:
+      - httpd
+      - mod_ssl
+    state: present
+  when: is_centos
+  tags: apache
+
+- name: Install Apache (macOS)
+  homebrew:
+    name: httpd
+    state: present
+  when: is_macos
+  become: no
+  tags: apache
+
+- name: Enable Apache modules (Ubuntu)
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - proxy
+    - proxy_http
+    - rewrite
+    - headers
+  when: is_ubuntu
+  notify: restart apache
+  tags: apache
+
+- name: Enable Apache modules (CentOS)
+  lineinfile:
+    path: /etc/httpd/conf.modules.d/00-proxy.conf
+    line: "LoadModule {{ item }}_module modules/mod_{{ item }}.so"
+    create: yes
+  loop:
+    - proxy
+    - proxy_http
+    - rewrite
+    - headers
+  when: is_centos
+  notify: restart apache
+  tags: apache
+
+- name: Create Apache virtual host configuration
+  template:
+    src: histomics.conf.j2
+    dest: "{{ apache_config_dir }}/histomics.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart apache
+  tags: apache
+
+- name: Enable histomics site (Ubuntu)
+  command: a2ensite histomics
+  args:
+    creates: /etc/apache2/sites-enabled/histomics.conf
+  when: is_ubuntu
+  notify: restart apache
+  tags: apache
+
+- name: Disable default site (Ubuntu)
+  command: a2dissite 000-default
+  args:
+    removes: /etc/apache2/sites-enabled/000-default.conf
+  when: is_ubuntu
+  notify: restart apache
+  tags: apache
+
+- name: Create web root directory
+  file:
+    path: /var/www/html/histomics
+    state: directory
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: apache
+
+- name: Copy React frontend to web root
+  synchronize:
+    src: "{{ app_install_dir }}/frontend/"
+    dest: /var/www/html/histomics/
+  delegate_to: "{{ inventory_hostname }}"
+  tags: apache
+
+- name: Set frontend permissions
+  file:
+    path: /var/www/html/histomics
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    recurse: yes
+  tags: apache
+
+- name: Start and enable Apache (Linux)
+  systemd:
+    name: "{{ apache_service }}"
+    state: started
+    enabled: yes
+  when: not is_macos
+  tags: apache
+
+- name: Start Apache (macOS)
+  shell: brew services start httpd
+  when: is_macos
+  become: no
+  tags: apache
+
+- name: Wait for Apache to start
+  wait_for:
+    port: "{{ apache_port }}"
+    delay: 2
+    timeout: 30
+  tags: apache
+
+- name: Test Apache configuration
+  command: "{{ 'apachectl' if is_macos else 'apache2ctl' if is_ubuntu else 'httpd' }} -t"
+  register: apache_test
+  changed_when: false
+  ignore_errors: yes
+  tags: apache
+
+- name: Display Apache status
+  debug:
+    msg: "Apache configuration: {{ 'OK' if apache_test.rc == 0 else 'ERROR - Check config' }}"
+  tags: apache

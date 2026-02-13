@@ -1,0 +1,92 @@
+---
+# H5 Processing role - Extract nuclei from H5 and insert to MySQL
+
+- name: Ensure H5 scripts directory exists
+  file:
+    path: "{{ h5_scripts_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+  tags: h5_processing
+
+- name: Copy H5 extraction and import script
+  copy:
+    src: import_h5_to_mysql.py
+    dest: "{{ h5_scripts_dir }}/import_h5_to_mysql.py"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+  tags: h5_processing
+
+- name: Check if H5 file exists
+  stat:
+    path: "{{ h5_file_path }}"
+  register: h5_file
+  tags: h5_processing
+
+- name: Display H5 file status
+  debug:
+    msg: "H5 file {{ 'found' if h5_file.stat.exists else 'NOT FOUND' }} at {{ h5_file_path }}"
+  tags: h5_processing
+
+- name: Check if nuclei data already exists in database
+  shell: |
+    mysql -u {{ db_user }} -p'{{ db_password }}' {{ db_name }} -sN -e "SELECT COUNT(*) FROM nuclei_boundary"
+  register: nuclei_count
+  changed_when: false
+  when: h5_file.stat.exists
+  tags: h5_processing
+
+- name: Display current nuclei count
+  debug:
+    msg: "Current nuclei records in database: {{ nuclei_count.stdout | default('0') }}"
+  when: h5_file.stat.exists
+  tags: h5_processing
+
+- name: Import nuclei data from H5 to MySQL using Python
+  shell: |
+    {{ python_bin }} {{ h5_scripts_dir }}/import_h5_to_mysql.py \
+      --h5-file {{ h5_file_path }} \
+      --db-host {{ db_host }} \
+      --db-name {{ db_name }} \
+      --db-user {{ db_user }} \
+      --db-password {{ db_password }}
+  when: 
+    - h5_file.stat.exists
+    - nuclei_count.stdout == "0"
+  register: mysql_import
+  tags: h5_processing
+
+- name: Get final nuclei count
+  shell: |
+    mysql -u {{ db_user }} -p'{{ db_password }}' {{ db_name }} -sN -e "SELECT COUNT(*) FROM nuclei_boundary"
+  register: final_count
+  changed_when: false
+  when: h5_file.stat.exists
+  tags: h5_processing
+
+- name: Display import summary
+  debug:
+    msg: 
+      - "Nuclei data import completed!"
+      - "Records imported: {{ final_count.stdout | default('0') }}"
+  when: 
+    - h5_file.stat.exists
+    - mysql_import is defined
+    - mysql_import.changed
+  tags: h5_processing
+
+- name: Skip message if data already exists
+  debug:
+    msg: " Nuclei data already exists in database ({{ nuclei_count.stdout }} records) - skipping import"
+  when:
+    - h5_file.stat.exists
+    - nuclei_count.stdout != "0"
+  tags: h5_processing
+
+- name: Warning if H5 file not found
+  debug:
+    msg: " H5 file not found at {{ h5_file_path }} - skipping nuclei import"
+  when: not h5_file.stat.exists
+  tags: h5_processing

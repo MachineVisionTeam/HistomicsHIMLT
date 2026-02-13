@@ -1,0 +1,109 @@
+---
+# Services role - Create and manage systemd services
+
+- name: Create Flask API systemd service
+  template:
+    src: histomics-flask.service.j2
+    dest: /etc/systemd/system/histomics-flask.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: not is_macos
+  notify: reload systemd
+  tags: services
+
+- name: Create ML Worker systemd service
+  template:
+    src: histomics-ml.service.j2
+    dest: /etc/systemd/system/histomics-ml.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: not is_macos
+  notify: reload systemd
+  tags: services
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  when: not is_macos
+  tags: services
+
+- name: Enable and start Flask API service
+  systemd:
+    name: histomics-flask
+    enabled: yes
+    state: started
+  when: not is_macos
+  tags: services
+
+- name: Enable and start ML Worker service
+  systemd:
+    name: histomics-ml
+    enabled: yes
+    state: started
+  when: not is_macos and ml_worker_enabled
+  tags: services
+
+- name: Create launchd plist for Flask API (macOS)
+  template:
+    src: com.histomics.flask.plist.j2
+    dest: /Library/LaunchDaemons/com.histomics.flask.plist
+    owner: root
+    group: wheel
+    mode: '0644'
+  when: is_macos
+  tags: services
+
+- name: Create launchd plist for ML Worker (macOS)
+  template:
+    src: com.histomics.ml.plist.j2
+    dest: /Library/LaunchDaemons/com.histomics.ml.plist
+    owner: root
+    group: wheel
+    mode: '0644'
+  when: is_macos and ml_worker_enabled
+  tags: services
+
+- name: Load Flask API service (macOS)
+  command: launchctl load /Library/LaunchDaemons/com.histomics.flask.plist
+  when: is_macos
+  ignore_errors: yes
+  tags: services
+
+- name: Load ML Worker service (macOS)
+  command: launchctl load /Library/LaunchDaemons/com.histomics.ml.plist
+  when: is_macos and ml_worker_enabled
+  ignore_errors: yes
+  tags: services
+
+- name: Wait for Flask API to start
+  wait_for:
+    port: "{{ flask_port }}"
+    delay: 5
+    timeout: 30
+  tags: services
+
+- name: Check Flask API status
+  systemd:
+    name: histomics-flask
+    state: started
+  register: flask_status
+  when: not is_macos
+  tags: services
+
+- name: Check ML Worker status
+  systemd:
+    name: histomics-ml
+    state: started
+  register: ml_status
+  when: not is_macos and ml_worker_enabled
+  tags: services
+
+- name: Display services status
+  debug:
+    msg: |
+      Services status:
+      - Flask API: {{ flask_status.state if not is_macos else 'running (launchd)' }}
+      - ML Worker: {{ ml_status.state if (not is_macos and ml_worker_enabled) else 'running (launchd)' if (is_macos and ml_worker_enabled) else 'disabled' }}
+  tags: services

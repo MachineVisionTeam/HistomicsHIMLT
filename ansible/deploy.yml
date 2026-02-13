@@ -1,0 +1,70 @@
+---
+- name: Deploy Histopathology HIMLT
+  hosts: histomics_servers
+  become: yes
+  
+  vars_files:
+    - inventory/group_vars/all.yml
+  
+  pre_tasks:
+    - name: Display deployment information
+      debug:
+    
+    - name: Validate required variables
+      assert:
+        that:
+          - db_password != "CHANGE_ME_IN_PRODUCTION"
+          - flask_secret_key != "CHANGE_ME_GENERATE_SECURE_KEY"
+        fail_msg: "Please update database password and Flask secret key in inventory/group_vars/all.yml"
+        success_msg: "Configuration validated"
+  
+  roles:
+    - role: common
+      tags: ['common', 'setup']
+    
+    - role: mysql
+      tags: ['mysql', 'database']
+    
+    - role: redis
+      tags: ['redis']
+    
+    - role: python
+      tags: ['python']
+    
+    - role: application
+      tags: ['application', 'app']
+    
+    - role: iipimage
+      tags: ['iipimage', 'imaging']
+    
+    - role: apache
+      tags: ['apache', 'web']
+    
+    - role: services
+      tags: ['services', 'systemd']
+    
+    - role: h5_processing
+      tags: ['h5', 'data']
+      when: include_sample_data
+  
+  post_tasks:
+    - name: Display deployment summary
+      debug:
+        msg: |
+          ========================================
+          Deployment Complete!
+          ========================================
+          Application: http://{{ ansible_default_ipv4.address }}
+          
+          Services Status:
+          - Flask API: systemctl status histomics-flask
+          - ML Worker: systemctl status histomics-ml
+          - MySQL: systemctl status mysql
+          - Redis: systemctl status redis
+          - Apache: systemctl status apache2/httpd
+          
+          Next Steps:
+          1. Upload your .h5 feature files to {{ data_dir }}/
+          2. Run H5 processing: {{ app_dir }}/scripts/process_h5.sh
+          3. Access application at http://{{ ansible_default_ipv4.address }}
+          ========================================

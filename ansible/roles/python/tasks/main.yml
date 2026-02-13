@@ -1,0 +1,78 @@
+---
+# Python role - Create virtual environment and install dependencies
+
+- name: Create Python virtual environment
+  command: python3 -m venv {{ venv_dir }}
+  args:
+    creates: "{{ venv_dir }}/bin/activate"
+  become_user: "{{ actual_app_user }}"
+  tags: python
+
+- name: Upgrade pip in virtual environment
+  pip:
+    name:
+      - pip
+      - setuptools
+      - wheel
+    state: latest
+    virtualenv: "{{ venv_dir }}"
+  become_user: "{{ actual_app_user }}"
+  tags: python
+
+- name: Copy requirements.txt
+  copy:
+    src: "{{ playbook_dir }}/../requirements.txt"
+    dest: "{{ app_install_dir }}/requirements.txt"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0644'
+  tags: python
+
+- name: Install Python dependencies from requirements.txt
+  pip:
+    requirements: "{{ app_install_dir }}/requirements.txt"
+    virtualenv: "{{ venv_dir }}"
+    state: present
+  become_user: "{{ actual_app_user }}"
+  tags: python
+
+- name: Install additional ML dependencies
+  pip:
+    name:
+      - gunicorn
+      - mysqlclient
+      - redis
+      - celery
+      - Flask
+      - Flask-CORS
+      - scikit-learn
+      - h5py
+      - numpy
+      - Pillow
+      - opencv-python-headless
+    virtualenv: "{{ venv_dir }}"
+    state: present
+  become_user: "{{ actual_app_user }}"
+  tags: python
+
+- name: Verify Python environment
+  shell: "{{ venv_dir }}/bin/python --version"
+  register: python_version_check
+  changed_when: false
+  tags: python
+
+- name: Display Python version
+  debug:
+    msg: "Virtual environment Python: {{ python_version_check.stdout }}"
+  tags: python
+
+- name: List installed packages
+  shell: "{{ venv_dir }}/bin/pip list"
+  register: pip_list
+  changed_when: false
+  tags: python
+
+- name: Display installed packages count
+  debug:
+    msg: "Installed {{ pip_list.stdout_lines | length }} Python packages"
+  tags: python

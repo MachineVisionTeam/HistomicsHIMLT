@@ -1,0 +1,103 @@
+# ===========================================
+# Application Settings
+# ===========================================
+app_name: new_histomics
+app_install_dir: /opt/histomics-prod
+app_user: www-data
+app_group: www-data
+
+# ===========================================
+# Database Settings
+# ===========================================
+db_host: localhost
+db_port: 3306
+db_name: histomics_db
+db_user: histomics
+db_password: "CHANGE_THIS_PASSWORD"
+
+# ===========================================
+# Redis Settings
+# ===========================================
+redis_host: localhost
+redis_port: 6379
+redis_password: ""
+
+# ===========================================
+# Flask Settings
+# ===========================================
+flask_host: 127.0.0.1
+flask_port: 5000
+flask_env: production
+flask_debug: false
+flask_secret_key: "CHANGE_THIS_SECRET_KEY"
+
+# ===========================================
+# Gunicorn Settings
+# ===========================================
+gunicorn_workers: 8
+gunicorn_timeout: 120
+gunicorn_bind: "127.0.0.1:5000"
+
+# ===========================================
+# Apache Settings
+# ===========================================
+apache_server_name: "localhost"
+apache_port: 80
+apache_ssl: false
+
+# ===========================================
+# IIPImage Server Settings
+# ===========================================
+iipimage_enabled: true
+iipimage_tile_size: 256
+iipimage_max_image_cache_size: 10000
+
+# ===========================================
+# Simple Directory Paths
+# ===========================================
+# Only DATA_DIR is used by settings.py
+data_dir: /data
+
+# Application directories
+checkpoints_dir: "{{ app_install_dir }}/ml/checkpoints"
+h5_scripts_dir: "{{ app_install_dir }}/scripts"
+logs_dir: "{{ app_install_dir }}/logs"
+
+# ===========================================
+# Python Environment
+# ===========================================
+python_version: "3.8"
+venv_dir: "{{ app_install_dir }}/venv"
+
+# ===========================================
+# ML Worker Settings
+# ===========================================
+ml_worker_enabled: true
+ml_worker_log_level: INFO
+
+# ===========================================
+# H5 Processing Settings
+# ===========================================
+h5_processing_enabled: true
+
+# H5 file location for nuclei import
+h5_file_path: "{{ data_dir }}/GBM/gbm_features.h5"
+h5_output_dir: "/tmp"
+python_bin: "{{ venv_dir }}/bin/python3"
+
+# ===========================================
+# MySQL Settings
+# ===========================================
+mysql_root_password: "CHANGE_THIS_ROOT_PASSWORD"
+
+# ===========================================
+# Sample Data
+# ===========================================
+import_sample_data: true
+
+# ===========================================
+# System Package Installation
+# ===========================================
+install_system_packages: true
+install_iipimage: true
+install_vips: true

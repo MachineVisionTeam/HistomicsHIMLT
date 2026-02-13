@@ -1,0 +1,89 @@
+---
+# Application role - Deploy Flask API and ML Worker code
+
+- name: Copy Flask API application files
+  copy:
+    src: "{{ playbook_dir }}/../app/"
+    dest: "{{ app_install_dir }}/app/"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: application
+
+- name: Copy ML Worker files
+  copy:
+    src: "{{ playbook_dir }}/../ml/"
+    dest: "{{ app_install_dir }}/ml/"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: application
+
+- name: Copy frontend build files
+  copy:
+    src: "{{ playbook_dir }}/../frontend/build/"
+    dest: "{{ app_install_dir }}/frontend/"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: application
+
+- name: Create .env file from template
+  template:
+    src: .env.j2
+    dest: "{{ app_install_dir }}/.env"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0600'
+  tags: application
+
+- name: Create settings.py from template
+  template:
+    src: settings.py.j2
+    dest: "{{ app_install_dir }}/settings.py"
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0644'
+  tags: application
+
+- name: Set executable permissions for Python scripts
+  file:
+    path: "{{ item }}"
+    mode: '0755'
+  loop:
+    - "{{ app_install_dir }}/app/app.py"
+    - "{{ app_install_dir }}/ml/run_model_server.py"
+  tags: application
+
+- name: Create log directory
+  file:
+    path: "{{ app_install_dir }}/logs"
+    state: directory
+    owner: "{{ actual_app_user }}"
+    group: "{{ actual_app_group }}"
+    mode: '0755'
+  tags: application
+
+- name: Test Flask application syntax
+  shell: "{{ venv_dir }}/bin/python -m py_compile {{ app_install_dir }}/app/app.py"
+  register: flask_syntax
+  changed_when: false
+  ignore_errors: yes
+  tags: application
+
+- name: Display Flask syntax check result
+  debug:
+    msg: "Flask app syntax: {{ 'OK' if flask_syntax.rc == 0 else 'ERROR - Check syntax' }}"
+  tags: application
+
+- name: Test ML Worker syntax
+  shell: "{{ venv_dir }}/bin/python -m py_compile {{ app_install_dir }}/ml/run_model_server.py"
+  register: ml_syntax
+  changed_when: false
+  ignore_errors: yes
+  tags: application
+
+- name: Display ML Worker syntax check result
+  debug:
+    msg: "ML Worker syntax: {{ 'OK' if ml_syntax.rc == 0 else 'ERROR - Check syntax' }}"
+  tags: application

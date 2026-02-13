@@ -1,0 +1,93 @@
+---
+# Redis role - Install and configure Redis server
+
+- name: Install Redis (Ubuntu/Debian)
+  apt:
+    name: redis-server
+    state: present
+  when: is_ubuntu
+  tags: redis
+
+- name: Install Redis (CentOS/RHEL)
+  dnf:
+    name: redis
+    state: present
+  when: is_centos
+  tags: redis
+
+- name: Install Redis (macOS)
+  homebrew:
+    name: redis
+    state: present
+  when: is_macos
+  become: no
+  tags: redis
+
+- name: Configure Redis (Linux)
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    backup: yes
+  loop:
+    - { regexp: '^bind', line: 'bind 127.0.0.1' }
+    - { regexp: '^maxmemory', line: 'maxmemory 2gb' }
+    - { regexp: '^maxmemory-policy', line: 'maxmemory-policy allkeys-lru' }
+  when: not is_macos
+  notify: restart redis
+  tags: redis
+
+- name: Configure Redis (macOS)
+  lineinfile:
+    path: /usr/local/etc/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    backup: yes
+    create: yes
+  loop:
+    - { regexp: '^bind', line: 'bind 127.0.0.1' }
+    - { regexp: '^maxmemory', line: 'maxmemory 2gb' }
+    - { regexp: '^maxmemory-policy', line: 'maxmemory-policy allkeys-lru' }
+  when: is_macos
+  notify: restart redis
+  tags: redis
+
+- name: Start and enable Redis (Linux)
+  systemd:
+    name: redis-server
+    state: started
+    enabled: yes
+  when: is_ubuntu
+  tags: redis
+
+- name: Start and enable Redis (CentOS)
+  systemd:
+    name: redis
+    state: started
+    enabled: yes
+  when: is_centos
+  tags: redis
+
+- name: Start Redis (macOS)
+  shell: brew services start redis
+  when: is_macos
+  become: no
+  tags: redis
+
+- name: Wait for Redis to start
+  wait_for:
+    port: 6379
+    delay: 2
+    timeout: 30
+  tags: redis
+
+- name: Test Redis connection
+  shell: redis-cli ping
+  register: redis_ping
+  changed_when: false
+  tags: redis
+
+- name: Display Redis status
+  debug:
+    msg: "Redis is running: {{ redis_ping.stdout }}"
+  tags: redis

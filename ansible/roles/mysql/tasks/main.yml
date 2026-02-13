@@ -1,0 +1,76 @@
+---
+# MySQL installation and setup
+
+- name: Install MySQL server
+  apt:
+    name: 
+      - mysql-server
+      - python3-pymysql
+    state: present
+    update_cache: yes
+  tags: mysql
+
+- name: Start and enable MySQL service
+  systemd:
+    name: mysql
+    state: started
+    enabled: yes
+  tags: mysql
+
+- name: Set MySQL root password
+  mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+  tags: mysql
+
+- name: Create application database user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: "{{ db_name }}.*:ALL"
+    host: localhost
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    state: present
+  tags: mysql
+
+- name: Copy database schema template
+  template:
+    src: schema.sql.j2
+    dest: /tmp/schema.sql
+  tags: mysql
+
+- name: Import database schema
+  mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    target: /tmp/schema.sql
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: mysql
+
+- name: Copy sample data file
+  copy:
+    src: sample_data.sql
+    dest: /tmp/sample_data.sql
+  tags: mysql
+
+- name: Check if sample data already imported
+  shell: |
+    mysql -u {{ db_user }} -p'{{ db_password }}' {{ db_name }} -sN -e "SELECT COUNT(*) FROM datasets"
+  register: dataset_count
+  changed_when: false
+  ignore_errors: yes
+  tags: mysql
+
+- name: Import sample data (only if empty)
+  mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    target: /tmp/sample_data.sql
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+  when: dataset_count.stdout == "0"
+  tags: mysql

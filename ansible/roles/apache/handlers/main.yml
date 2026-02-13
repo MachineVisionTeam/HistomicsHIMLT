@@ -1,0 +1,13 @@
+---
+# Apache handlers
+
+- name: restart apache
+  systemd:
+    name: "{{ apache_service }}"
+    state: restarted
+  when: not is_macos
+
+- name: restart apache macos
+  shell: brew services restart httpd
+  when: is_macos
+  become: no

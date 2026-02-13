@@ -1,0 +1,15 @@
+# Inventory Template for Histopathology HIMLT Deployment
+# Copy this file to 'hosts' and update with your server details
+
+[histomics_servers]
+# Replace with your actual server IP or hostname
+server1 ansible_host=XXXXXX
+
+[histomics_servers:vars]
+# SSH connection settings
+ansible_user=XXXXXXXX
+ansible_become=yes
+ansible_become_method=sudo
+
+# Python interpreter (auto-detect or specify)
+ansible_python_interpreter=/usr/bin/python3
