@@ -49,6 +49,8 @@ app/logs/
 *.db
 *.sqlite
 *.sql
+!ansible/roles/mysql/files/*.sql
+!ansible/roles/mysql/templates/*.sql
 
 # IDE
 .vscode/
