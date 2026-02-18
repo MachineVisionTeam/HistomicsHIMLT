@@ -17,6 +17,13 @@
     enabled: yes
   tags: mysql
 
+- name: Check if MySQL root password already set
+  shell: mysql -u root -e "SELECT 1" 2>&1
+  register: mysql_root_check
+  failed_when: false
+  changed_when: false
+  tags: mysql
+
 - name: Set MySQL root password
   mysql_user:
     name: root

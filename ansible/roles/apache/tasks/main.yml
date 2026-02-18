@@ -5,7 +5,6 @@
   apt:
     name:
       - apache2
-      - libapache2-mod-proxy-html
       - libxml2-dev
     state: present
   when: is_ubuntu
@@ -95,6 +94,7 @@
     src: "{{ app_install_dir }}/frontend/"
     dest: /var/www/html/histomics/
   delegate_to: "{{ inventory_hostname }}"
+  when: false
   tags: apache
 
 - name: Set frontend permissions

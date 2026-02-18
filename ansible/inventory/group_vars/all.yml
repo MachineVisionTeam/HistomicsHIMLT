@@ -44,6 +44,10 @@ gunicorn_bind: "127.0.0.1:5000"
 apache_server_name: "localhost"
 apache_port: 80
 apache_ssl: false
+apache_config_dir: /etc/apache2/sites-available
+apache_enabled_dir: /etc/apache2/sites-enabled
+apache_service_name: apache2
+apache_service: apache2
 
 # ===========================================
 # IIPImage Server Settings
@@ -51,6 +55,10 @@ apache_ssl: false
 iipimage_enabled: true
 iipimage_tile_size: 256
 iipimage_max_image_cache_size: 10000
+iipimage_images_dir:"{{ data_dir }}/images"
+iipimage_cache_dir: /var/cache/iipimage
+iipimage_log_file: /var/log/iipimage.log
+iipimage_max_cvt: 5000
 
 # ===========================================
 # Simple Directory Paths
@@ -101,3 +109,9 @@ import_sample_data: true
 install_system_packages: true
 install_iipimage: true
 install_vips: true
+
+# ===========================================
+# Derived Variables
+# ===========================================
+actual_app_user: "{{ app_user }}"
+actual_app_group: "{{ app_group }}"

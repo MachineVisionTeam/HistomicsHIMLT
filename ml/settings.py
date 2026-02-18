@@ -37,4 +37,4 @@ class Settings():
         # initialize datasets
         self.FEATURE_DIM = 64
         self.IS_HEATMAP = False
-        self.DATASET_DIR = os.getenv('DATA_DIR', '/data/')
+        self.DATASET_DIR = os.path.join(os.getenv('DATA_DIR', '/data'), '')

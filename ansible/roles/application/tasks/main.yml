@@ -26,11 +26,12 @@
     owner: "{{ actual_app_user }}"
     group: "{{ actual_app_group }}"
     mode: '0755'
+  when: false
   tags: application
 
 - name: Create .env file from template
   template:
-    src: .env.j2
+    src: env.j2
     dest: "{{ app_install_dir }}/.env"
     owner: "{{ actual_app_user }}"
     group: "{{ actual_app_group }}"

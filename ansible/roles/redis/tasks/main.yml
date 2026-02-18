@@ -1,5 +1,12 @@
 ---
 # Redis role - Install and configure Redis server
+- name: Set OS distribution facts
+  set_fact:
+    is_ubuntu: "{{ ansible_distribution == 'Ubuntu' }}"
+    is_debian: "{{ ansible_distribution == 'Debian' }}"
+    is_centos: "{{ ansible_distribution == 'CentOS' }}"
+    is_redhat: "{{ ansible_distribution == 'RedHat' }}"
+    is_macos: "{{ ansible_distribution == 'MacOSX' }}"
 
 - name: Install Redis (Ubuntu/Debian)
   apt:
