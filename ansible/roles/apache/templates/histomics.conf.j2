@@ -61,30 +61,3 @@
 
 </VirtualHost>
 
-{% if apache_ssl %}
-<VirtualHost *:443>
-    ServerName {{ apache_server_name }}
-    ServerAdmin admin@{{ apache_server_name }}
-
-    # SSL Configuration
-    SSLEngine on
-    SSLCertificateFile /etc/ssl/certs/histomics.crt
-    SSLCertificateKeyFile /etc/ssl/private/histomics.key
-
-    # Same configuration as HTTP
-    DocumentRoot /var/www/html/histomics
-
-    <Directory /var/www/html/histomics>
-        Options -Indexes +FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    ProxyPreserveHost On
-    ProxyPass /api http://{{ flask_host }}:{{ flask_port }}/api
-    ProxyPassReverse /api http://{{ flask_host }}:{{ flask_port }}/api
-
-    ErrorLog ${APACHE_LOG_DIR}/histomics_ssl_error.log
-    CustomLog ${APACHE_LOG_DIR}/histomics_ssl_access.log combined
-</VirtualHost>
-{% endif %}
