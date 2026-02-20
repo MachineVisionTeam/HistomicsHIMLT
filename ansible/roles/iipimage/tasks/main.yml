@@ -1,6 +1,13 @@
 ---
 # IIPImage role - Install and configure IIPImage server for whole slide images
 
+- name: Detect OS
+  set_fact:
+    is_ubuntu: "{{ ansible_os_family == 'Debian' }}"
+    is_centos: "{{ ansible_os_family == 'RedHat' }}"
+    is_macos: "{{ ansible_os_family == 'Darwin' }}"
+  tags: iipimage
+
 - name: Install IIPImage and dependencies (Ubuntu/Debian)
   apt:
     name:

@@ -32,6 +32,18 @@
     state: present
   tags: mysql
 
+- name: Create .my.cnf file for root
+  template:
+    content: |
+      [client]
+      user=root
+      password={{ mysql_root_password }}
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: '0600'
+  tags: mysql
+
 - name: Create application database user
   mysql_user:
     name: "{{ db_user }}"

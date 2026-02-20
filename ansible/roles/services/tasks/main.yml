@@ -1,6 +1,13 @@
 ---
 # Services role - Create and manage systemd services
 
+- name: Detect OS
+  set_fact:
+    is_ubuntu: "{{ ansible_os_family == 'Debian' }}"
+    is_centos: "{{ ansible_os_family == 'RedHat' }}"
+    is_macos: "{{ ansible_os_family == 'Darwin' }}"
+  tags: services
+
 - name: Create Flask API systemd service
   template:
     src: histomics-flask.service.j2

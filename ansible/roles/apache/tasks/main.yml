@@ -1,6 +1,12 @@
 ---
 # Apache role - Install and configure Apache web server
 
+- name: Detect OS
+  set_fact:
+    is_ubuntu: "{{ ansible_os_family == 'Debian' }}"
+    is_centos: "{{ ansible_os_family == 'RedHat' }}"
+  tags: apache
+
 - name: Install Apache (Ubuntu/Debian)
   apt:
     name:
