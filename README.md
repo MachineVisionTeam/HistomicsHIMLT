@@ -10,6 +10,7 @@ ________________________________________
 
 
 ## Repository Structure
+```
 HistomicsHIMLT
 |-- ansible
 |-- app
@@ -50,6 +51,7 @@ HistomicsHIMLT
 |   |-- histomics-flask.service
 |   |-- histomics-ml.service
 
+```
 ## Technology Stack
 ## Backend
 - **Flask** - Web framework
