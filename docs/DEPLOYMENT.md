@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers deploying the Histopathology HIMLT application to a production server using Ansible automation. The deployment installs and configures all required services on an Ubuntu server
+This guide covers deploying the Histopathology HIMLT application to a production server using Ansible automation. The deployment installs and configures all required services on an Linux server
 
 
 
@@ -25,7 +25,7 @@ This guide covers deploying the Histopathology HIMLT application to a production
 - SSH key access to target server(if control machine is different from target)
 
 ### Target Server Requirements:
-- Ubuntu 22.04 LTS
+- Linux server
 - Minimum 4GB RAM
 - Minimum 50GB disk space
 - SSH access configured
