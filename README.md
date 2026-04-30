@@ -1,6 +1,5 @@
 ## Project Overview
-What is HIMLT?
-It is a modern web-based system for analyzing whole-slide images (WSI) of tissue samples Display gigapixel medical images smoothly in the browser.
+Hybird Interactive Machine Learning Tool(HIMLT) is a modern web-based system for analyzing whole-slide images (WSI) of tissue samples Display gigapixel medical images smoothly in the browser.
 •	Detect and highlight cell nuclei automatically.
 •	Load precomputed nuclei coordinates from HDF5 files.
 •	Let pathologists/Researcher’s select positive/negative examples.
