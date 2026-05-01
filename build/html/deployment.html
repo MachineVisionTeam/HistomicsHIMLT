@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployment Guide &mdash; HistomicsHIMLT  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="HIMLT - Histomics Image Machine Learning Tool" href="readMe.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HistomicsHIMLT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readMe.html">HIMLT - Histomics Image Machine Learning Tool</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#services-deployed">Services Deployed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#control-machine-where-you-run-ansible-from">Control Machine (where you run Ansible from)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#target-server-requirements">Target Server Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pre-deployment-steps-manual">Pre-Deployment Steps (Manual)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-copy-tif-image-files">Step 1 — Copy TIF Image Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-copy-h5-features-file">Step 2 — Copy H5 Features File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-verify-files-on-target-server">Step 3 — Verify Files on Target Server</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-steps">Deployment Steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-clone-repository">Step 1 — Clone Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-configure-inventory">Step 2 — Configure Inventory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-configure-variables">Step 3 — Configure Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-test-connection">Step 4 — Test Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-5-run-deployment">Step 5 — Run Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-gets-deployed">What Gets Deployed</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ansible-roles-in-order">Ansible Roles (in order)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-locations-on-server">File Locations on Server</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#database-schema">Database Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-deployment-verification">Post-Deployment Verification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#check-all-services">Check All Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-application">Test Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-database">Check Database</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deploying-individual-roles">Deploying Individual Roles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rollback-using-snapshots">Rollback Using Snapshots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#apache-won-t-start">Apache won’t start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flask-service-failing">Flask service failing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mysql-connection-issues">MySQL connection issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#h5-data-not-imported">H5 data not imported</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-all-logs">Check all logs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#security-notes">Security Notes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HistomicsHIMLT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Deployment Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/deployment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><a class="reference internal" href="readMe.html"><span class="doc">← Back to Overview</span></a></p>
+<section id="deployment-guide">
+<h1>Deployment Guide<a class="headerlink" href="#deployment-guide" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This guide covers deploying the Histopathology HIMLT application to a production
+server using Ansible automation. The deployment installs and configures all required
+services on a Linux server.</p>
+<section id="services-deployed">
+<h3>Services Deployed<a class="headerlink" href="#services-deployed" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 50.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Service</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>Port</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Apache</p></td>
+<td><p>Web server, reverse proxy</p></td>
+<td><p>80</p></td>
+</tr>
+<tr class="row-odd"><td><p>Flask (Gunicorn)</p></td>
+<td><p>REST API backend</p></td>
+<td><p>5000 (internal)</p></td>
+</tr>
+<tr class="row-even"><td><p>ML Worker</p></td>
+<td><p>Random Forest training/prediction</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p>MySQL</p></td>
+<td><p>Database</p></td>
+<td><p>3306 (internal)</p></td>
+</tr>
+<tr class="row-even"><td><p>Redis</p></td>
+<td><p>Job queue</p></td>
+<td><p>6379 (internal)</p></td>
+</tr>
+<tr class="row-odd"><td><p>IIPImage</p></td>
+<td><p>Whole slide image tile server</p></td>
+<td><p>FastCGI</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<section id="control-machine-where-you-run-ansible-from">
+<h3>Control Machine (where you run Ansible from)<a class="headerlink" href="#control-machine-where-you-run-ansible-from" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Ansible 2.16+</p></li>
+<li><p>Git</p></li>
+<li><p>SSH key access to target server (if control machine is different from target)</p></li>
+</ul>
+</section>
+<section id="target-server-requirements">
+<h3>Target Server Requirements<a class="headerlink" href="#target-server-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Linux server</p></li>
+<li><p>Minimum 4 GB RAM</p></li>
+<li><p>Minimum 50 GB disk space</p></li>
+<li><p>SSH access configured</p></li>
+<li><p>Sudo privileges</p></li>
+</ul>
+</section>
+</section>
+<section id="pre-deployment-steps-manual">
+<h2>Pre-Deployment Steps (Manual)<a class="headerlink" href="#pre-deployment-steps-manual" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These files must be placed on the <strong>target server</strong> before running deployment.</p>
+</div>
+<section id="step-1-copy-tif-image-files">
+<h3>Step 1 — Copy TIF Image Files<a class="headerlink" href="#step-1-copy-tif-image-files" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create directory on target server</span>
+ssh<span class="w"> </span>user@server<span class="w"> </span><span class="s2">&quot;sudo mkdir -p /data/GBM&quot;</span>
+
+<span class="c1"># Copy TIF files from source</span>
+scp<span class="w"> </span>/path/to/TCGA-*.tif<span class="w"> </span>user@server:/data/GBM/
+
+<span class="c1"># Set permissions</span>
+ssh<span class="w"> </span>user@server<span class="w"> </span><span class="s2">&quot;sudo chmod -R 755 /data/GBM&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-copy-h5-features-file">
+<h3>Step 2 — Copy H5 Features File<a class="headerlink" href="#step-2-copy-h5-features-file" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>/path/to/gbm_features.h5<span class="w"> </span>user@server:/data/GBM/
+</pre></div>
+</div>
+</section>
+<section id="step-3-verify-files-on-target-server">
+<h3>Step 3 — Verify Files on Target Server<a class="headerlink" href="#step-3-verify-files-on-target-server" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>user@server<span class="w"> </span><span class="s2">&quot;ls -lh /data/GBM/&quot;</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gbm_features</span><span class="o">.</span><span class="n">h5</span>
+<span class="n">TCGA</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">5410</span><span class="o">-</span><span class="mi">01</span><span class="n">Z</span><span class="o">-</span><span class="mi">00</span><span class="o">-</span><span class="n">DX1</span><span class="o">.*.</span><span class="n">tif</span>
+<span class="n">TCGA</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="mi">2620</span><span class="o">-</span><span class="mi">01</span><span class="n">Z</span><span class="o">-</span><span class="mi">00</span><span class="o">-</span><span class="n">DX1</span><span class="o">.*.</span><span class="n">tif</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="deployment-steps">
+<h2>Deployment Steps<a class="headerlink" href="#deployment-steps" title="Link to this heading"></a></h2>
+<section id="step-1-clone-repository">
+<h3>Step 1 — Clone Repository<a class="headerlink" href="#step-1-clone-repository" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/MachineVisionTeam/HistomicsHIMLT.git
+<span class="nb">cd</span><span class="w"> </span>HistomicsHIMLT/ansible
+</pre></div>
+</div>
+</section>
+<section id="step-2-configure-inventory">
+<h3>Step 2 — Configure Inventory<a class="headerlink" href="#step-2-configure-inventory" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>inventory/hosts.example<span class="w"> </span>inventory/hosts
+vi<span class="w"> </span>inventory/hosts
+</pre></div>
+</div>
+<p>Update with your server details:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[histomics_servers]</span>
+<span class="na">server1 ansible_host</span><span class="o">=</span><span class="s">YOUR_SERVER_IP ansible_ssh_private_key_file=/home/user/.ssh/your_key</span>
+
+<span class="k">[histomics_servers:vars]</span>
+<span class="na">ansible_user</span><span class="o">=</span><span class="s">your_username</span>
+<span class="na">ansible_become</span><span class="o">=</span><span class="s">yes</span>
+<span class="na">ansible_become_method</span><span class="o">=</span><span class="s">sudo</span>
+<span class="na">ansible_python_interpreter</span><span class="o">=</span><span class="s">/usr/bin/python3</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-configure-variables">
+<h3>Step 3 — Configure Variables<a class="headerlink" href="#step-3-configure-variables" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nano<span class="w"> </span>inventory/group_vars/all.yml
+</pre></div>
+</div>
+<p>Update these required fields:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Database</span>
+<span class="nt">mysql_root_password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your_secure_root_password&quot;</span>
+<span class="nt">db_password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your_secure_db_password&quot;</span>
+</pre></div>
+</div>
+<p>Generate a secure Flask secret key:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import secrets; print(secrets.token_hex(32))&quot;</span>
+</pre></div>
+</div>
+<p>Then set the remaining fields:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Flask</span>
+<span class="nt">flask_secret_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your_generated_secret_key&quot;</span>
+
+<span class="c1"># User (match your SSH user)</span>
+<span class="nt">app_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your_username</span>
+<span class="nt">app_group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your_username</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-test-connection">
+<h3>Step 4 — Test Connection<a class="headerlink" href="#step-4-test-connection" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ansible<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>histomics_servers<span class="w"> </span>-m<span class="w"> </span>ping
+</pre></div>
+</div>
+<p>Expected: <code class="docutils literal notranslate"><span class="pre">server1</span> <span class="pre">|</span> <span class="pre">SUCCESS</span> <span class="pre">=&gt;</span> <span class="pre">{</span> <span class="pre">&quot;ping&quot;:</span> <span class="pre">&quot;pong&quot;</span> <span class="pre">}</span></code></p>
+</section>
+<section id="step-5-run-deployment">
+<h3>Step 5 — Run Deployment<a class="headerlink" href="#step-5-run-deployment" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml
+</pre></div>
+</div>
+<p>Deployment takes approximately <strong>20–30 minutes</strong> on a clean server.</p>
+</section>
+</section>
+<section id="what-gets-deployed">
+<h2>What Gets Deployed<a class="headerlink" href="#what-gets-deployed" title="Link to this heading"></a></h2>
+<section id="ansible-roles-in-order">
+<h3>Ansible Roles (in order)<a class="headerlink" href="#ansible-roles-in-order" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">common</span></code></p></td>
+<td><p>OS detection, system packages, directories</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mysql</span></code></p></td>
+<td><p>MySQL install, database schema, sample data</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">redis</span></code></p></td>
+<td><p>Redis install and configuration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">python</span></code></p></td>
+<td><p>Python virtual environment, pip dependencies</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">application</span></code></p></td>
+<td><p>Flask API and ML worker code</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iipimage</span></code></p></td>
+<td><p>IIPImage server for whole slide image tiles</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">apache</span></code></p></td>
+<td><p>Apache web server, proxy configuration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">services</span></code></p></td>
+<td><p>Systemd services for Flask and ML worker</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h5_processing</span></code></p></td>
+<td><p>H5 nuclei data extraction and database import</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="file-locations-on-server">
+<h3>File Locations on Server<a class="headerlink" href="#file-locations-on-server" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/opt/histomics-prod/          # Application root
+├── app/                      # Flask API
+├── ml/                       # ML Worker
+├── venv/                     # Python virtual environment
+├── logs/                     # Application logs
+└── .env.prod                 # Environment configuration
+
+/var/www/html/histomics/      # React frontend (static files)
+/data/GBM/                    # Image and H5 data files
+/etc/apache2/                 # Apache configuration
+</pre></div>
+</div>
+</section>
+</section>
+<section id="database-schema">
+<h2>Database Schema<a class="headerlink" href="#database-schema" title="Link to this heading"></a></h2>
+<p>Four tables are created automatically with sample data:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span><span class="w">        </span><span class="c1">-- GBM dataset metadata</span>
+<span class="n">slides</span><span class="w">          </span><span class="c1">-- Slide information and pyramid paths</span>
+<span class="n">dataset_slides</span><span class="w">  </span><span class="c1">-- Junction table linking slides to datasets</span>
+<span class="n">nuclei_boundary</span><span class="w"> </span><span class="c1">-- Nuclei x,y coordinates (populated from H5)</span>
+</pre></div>
+</div>
+</section>
+<section id="post-deployment-verification">
+<h2>Post-Deployment Verification<a class="headerlink" href="#post-deployment-verification" title="Link to this heading"></a></h2>
+<section id="check-all-services">
+<h3>Check All Services<a class="headerlink" href="#check-all-services" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span>histomics-flask<span class="w"> </span>histomics-ml<span class="w"> </span>mysql<span class="w"> </span>redis<span class="w"> </span>apache2<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$service</span><span class="s2">: &quot;</span>
+<span class="w">    </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>is-active<span class="w"> </span><span class="nv">$service</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>All should show <code class="docutils literal notranslate"><span class="pre">active</span></code>.</p>
+</section>
+<section id="test-application">
+<h3>Test Application<a class="headerlink" href="#test-application" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test Flask API</span>
+curl<span class="w"> </span>http://localhost/api/health
+
+<span class="c1"># Test IIPImage</span>
+curl<span class="w"> </span>http://localhost/iipsrv/iipsrv.fcgi
+
+<span class="c1"># Test frontend</span>
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost
+</pre></div>
+</div>
+</section>
+<section id="check-database">
+<h3>Check Database<a class="headerlink" href="#check-database" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mysql<span class="w"> </span>-u<span class="w"> </span>histomics<span class="w"> </span>-p<span class="w"> </span>histomics_db
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;datasets&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tbl</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cnt</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">datasets</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;slides&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">slides</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dataset_slides</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;nuclei_boundary&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">nuclei_boundary</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="deploying-individual-roles">
+<h2>Deploying Individual Roles<a class="headerlink" href="#deploying-individual-roles" title="Link to this heading"></a></h2>
+<p>You can re-run specific parts of the deployment using tags:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Re-run only database setup</span>
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml<span class="w"> </span>--tags<span class="w"> </span>mysql
+
+<span class="c1"># Re-run only H5 processing</span>
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml<span class="w"> </span>--tags<span class="w"> </span>h5_processing
+
+<span class="c1"># Re-run only services</span>
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml<span class="w"> </span>--tags<span class="w"> </span>services
+
+<span class="c1"># Skip already-done roles</span>
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml<span class="w"> </span>--skip-tags<span class="w"> </span>common,mysql,redis
+</pre></div>
+</div>
+</section>
+<section id="rollback-using-snapshots">
+<h2>Rollback Using Snapshots<a class="headerlink" href="#rollback-using-snapshots" title="Link to this heading"></a></h2>
+<p>Snapshots can be taken at key stages during initial deployment.</p>
+<p>To restore: <strong>VirtualBox → Right-click VM → Snapshots → Select → Restore</strong></p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="apache-won-t-start">
+<h3>Apache won’t start<a class="headerlink" href="#apache-won-t-start" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apache2ctl<span class="w"> </span>configtest
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-xeu<span class="w"> </span>apache2.service
+sudo<span class="w"> </span>tail<span class="w"> </span>-20<span class="w"> </span>/var/log/apache2/error.log
+</pre></div>
+</div>
+</section>
+<section id="flask-service-failing">
+<h3>Flask service failing<a class="headerlink" href="#flask-service-failing" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>histomics-flask
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>histomics-flask<span class="w"> </span>-f
+</pre></div>
+</div>
+</section>
+<section id="mysql-connection-issues">
+<h3>MySQL connection issues<a class="headerlink" href="#mysql-connection-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mysql<span class="w"> </span>-u<span class="w"> </span>root<span class="w"> </span>-p<span class="w"> </span>histomics_db
+</pre></div>
+</div>
+</section>
+<section id="h5-data-not-imported">
+<h3>H5 data not imported<a class="headerlink" href="#h5-data-not-imported" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check H5 file exists</span>
+ls<span class="w"> </span>-lh<span class="w"> </span>/data/GBM/gbm_features.h5
+
+<span class="c1"># Re-run H5 processing</span>
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory/hosts<span class="w"> </span>deploy.yml<span class="w"> </span>--tags<span class="w"> </span>h5_processing
+</pre></div>
+</div>
+</section>
+<section id="check-all-logs">
+<h3>Check all logs<a class="headerlink" href="#check-all-logs" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>/opt/histomics-prod/logs/flask/error.log
+sudo<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>/var/log/apache2/histomics_error.log
+sudo<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>/var/log/iipsrv.log
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-notes">
+<h2>Security Notes<a class="headerlink" href="#security-notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inventory/hosts</span></code> — <strong>Never commit to GitHub</strong> (contains server IPs)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inventory/group_vars/all.yml</span></code> — Commit to GitHub but ensure passwords are changed from default values before deployment. Do not use default placeholder passwords like
+<code class="docutils literal notranslate"><span class="pre">CHANGE_THIS_PASSWORD</span></code> in production.</p></li>
+<li><p>Flask runs on <code class="docutils literal notranslate"><span class="pre">127.0.0.1:5000</span></code> — internal only, not exposed directly</p></li>
+<li><p>MySQL and Redis bind to localhost only</p></li>
+<li><p>Apache handles all external traffic on port 80</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="readMe.html" class="btn btn-neutral float-left" title="HIMLT - Histomics Image Machine Learning Tool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Deepthi Kondreddy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

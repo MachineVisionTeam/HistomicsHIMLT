@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HIMLT - Histomics Image Machine Learning Tool &mdash; HistomicsHIMLT  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deployment Guide" href="deployment.html" />
+    <link rel="prev" title="HistomicsHIMLT Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HistomicsHIMLT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HIMLT - Histomics Image Machine Learning Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#project-overview">Project Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#repository-structure">Repository Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#technology-stack">Technology Stack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend">Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#frontend">Frontend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deployment">Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-guide">Deployment Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HistomicsHIMLT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">HIMLT - Histomics Image Machine Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/readMe.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="himlt-histomics-image-machine-learning-tool">
+<h1>HIMLT - Histomics Image Machine Learning Tool<a class="headerlink" href="#himlt-histomics-image-machine-learning-tool" title="Link to this heading"></a></h1>
+<section id="project-overview">
+<h2>Project Overview<a class="headerlink" href="#project-overview" title="Link to this heading"></a></h2>
+<p>HIMLT is a modern web-based system for analyzing whole-slide images (WSI) of tissue samples.</p>
+<ul class="simple">
+<li><p>Display gigapixel medical images smoothly in the browser.</p></li>
+<li><p>Detect and highlight cell nuclei automatically.</p></li>
+<li><p>Load precomputed nuclei coordinates from HDF5 files.</p></li>
+<li><p>Let pathologists and researchers select positive/negative examples.</p></li>
+<li><p>Train AI models with a Random Forest classifier to classify nuclei across entire slides.</p></li>
+<li><p>Visualize predictions in real-time.</p></li>
+</ul>
+</section>
+<section id="repository-structure">
+<h2>Repository Structure<a class="headerlink" href="#repository-structure" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>HistomicsHIMLT
+|-- ansible
+|-- app
+|   |-- app.py
+|   |-- histomics_integration.py
+|   |-- static
+|   |   |-- assets
+|   |   |   |-- index-1yRzYoYq.js
+|   |   |   |-- index-CB8Rqdao.css
+|   |   |   |-- index-D3icpN35.js
+|   |   |   |-- index-Db-49GIo.css
+|   |   |-- index.html
+|-- config
+|   |-- .env.prod.example
+|-- docs
+|   |-- DEPLOYMENT.md
+|-- frontend
+|   |-- index.html
+|   |-- package.json
+|   |-- package-lock.json
+|   |-- postcss.config.js
+|   |-- src
+|   |   |-- App.tsx
+|   |   |-- index.css
+|   |   |-- main.tsx
+|   |-- tailwind.config.js
+|   |-- tsconfig.json
+|   |-- tsconfig.node.json
+|   |-- vite.config.ts
+|-- .gitignore
+|-- ml
+|   |-- dataset.py
+|   |-- networks.py
+|   |-- run_model_server.py
+|   |-- settings.py
+|-- requirements.txt
+|-- systemd
+|   |-- histomics-flask.service
+|   |-- histomics-ml.service
+</pre></div>
+</div>
+</section>
+<section id="technology-stack">
+<h2>Technology Stack<a class="headerlink" href="#technology-stack" title="Link to this heading"></a></h2>
+<section id="backend">
+<h3>Backend<a class="headerlink" href="#backend" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Flask</strong> — Web framework</p></li>
+<li><p><strong>MySQL</strong> — Database</p></li>
+<li><p><strong>Redis</strong> — Job queue</p></li>
+<li><p><strong>scikit-learn</strong> — Random Forest classifier</p></li>
+<li><p><strong>h5py</strong> — HDF5 file handling</p></li>
+</ul>
+</section>
+<section id="frontend">
+<h3>Frontend<a class="headerlink" href="#frontend" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>React 18</strong> — UI framework</p></li>
+<li><p><strong>TypeScript</strong> — Type safety</p></li>
+<li><p><strong>Vite</strong> — Build tool</p></li>
+<li><p><strong>OpenSeadragon</strong> — Image viewer</p></li>
+<li><p><strong>Tailwind CSS</strong> — Styling</p></li>
+</ul>
+</section>
+<section id="deployment">
+<h3>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Ansible</strong> — Automation</p></li>
+<li><p><strong>Systemd</strong> — Service management</p></li>
+<li><p><strong>Apache</strong> — Web server</p></li>
+<li><p><strong>Gunicorn</strong> — WSGI server</p></li>
+</ul>
+</section>
+</section>
+<section id="deployment-guide">
+<h2>Deployment Guide<a class="headerlink" href="#deployment-guide" title="Link to this heading"></a></h2>
+<p>For full setup and deployment instructions, see <a class="reference internal" href="deployment.html"><span class="doc">Deployment Guide</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="HistomicsHIMLT Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="deployment.html" class="btn btn-neutral float-right" title="Deployment Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Deepthi Kondreddy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
